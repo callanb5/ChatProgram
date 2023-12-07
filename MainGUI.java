@@ -1,142 +1,96 @@
+package com.example.chatt;
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.scene.text.Font;
+import javafx.stage.Stage;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-public class MainGUI {
-    String      appName     = "Chat Program";
-    MainGUI     mainGUI;
-    JFrame      newFrame    = new JFrame(appName);
-    JButton     sendMessage;
-    JTextField  messageBox;
-    JTextArea   chatBox;
-    JTextField  usernameChooser;
-    JFrame      preFrame;
+public class MainGUI extends Application {
+    private String appName = "Chat Program";
+    private Stage newStage = new Stage();
+    private Button sendMessage;
+    private TextField messageBox;
+    private TextArea chatBox;
+    private TextField usernameChooser;
+    private Stage preStage;
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    UIManager.setLookAndFeel(UIManager
-                            .getSystemLookAndFeelClassName());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                MainGUI mainGUI = new MainGUI();
-                mainGUI.preDisplay();
-            }
-        });
+        launch(args);
     }
-    public void preDisplay() {
-        newFrame.setVisible(false);
-        preFrame = new JFrame(appName);
-        usernameChooser = new JTextField(15);
-        JLabel chooseUsernameLabel = new JLabel("Pick a username:");
-        JButton enterServer = new JButton("Enter Chat Server");
-        enterServer.addActionListener(new enterServerButtonListener());
-        JPanel prePanel = new JPanel(new GridBagLayout());
+    @Override
+    public void start(Stage primaryStage) {
+        preStage = new Stage();
+        preStage.setTitle(appName);
 
-        GridBagConstraints preRight = new GridBagConstraints();
-        preRight.insets = new Insets(0, 0, 0, 10);
-        preRight.anchor = GridBagConstraints.EAST;
-        GridBagConstraints preLeft = new GridBagConstraints();
-        preLeft.anchor = GridBagConstraints.WEST;
-        preLeft.insets = new Insets(0, 10, 0, 10);
-      
-        preRight.fill = GridBagConstraints.HORIZONTAL;
-        preRight.gridwidth = GridBagConstraints.REMAINDER;
+        usernameChooser = new TextField();
+        Label chooseUsernameLabel = new Label("Pick a username:");
+        Button enterServer = new Button("Enter Chat Server");
+        enterServer.setOnAction(e -> enterServerButtonAction());
 
-        prePanel.add(chooseUsernameLabel, preLeft);
-        prePanel.add(usernameChooser, preRight);
-        preFrame.add(prePanel, BorderLayout.CENTER);
-        preFrame.add(enterServer, BorderLayout.SOUTH);
-        preFrame.setSize(300, 300);
-        preFrame.setVisible(true);
+        GridPane prePanel = new GridPane();
+        prePanel.setHgap(10);
+        prePanel.setVgap(10);
+        prePanel.setPadding(new Insets(10));
 
+        prePanel.add(chooseUsernameLabel, 0, 0);
+        prePanel.add(usernameChooser, 1, 0);
+        prePanel.add(enterServer, 1, 1);
+
+        Scene preScene = new Scene(prePanel, 300, 100);
+        preStage.setScene(preScene);
+        preStage.show();
     }
-    public void display() {
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BorderLayout());
+    private void enterServerButtonAction() {
+        String username = usernameChooser.getText();
+        if (username.length() < 1) {
+            System.out.println("No!");
+        } else {
+            preStage.close();
+            display();
+        }
+    }
+    private void display() {
+        BorderPane mainPane = new BorderPane();
 
-        JPanel southPanel = new JPanel();
-        southPanel.setBackground(Color.BLUE);
-        southPanel.setLayout(new GridBagLayout());
+        HBox bottomPane = new HBox(10);
+        bottomPane.setPadding(new Insets(10));
+        bottomPane.setStyle("-fx-background-color: blue;");
 
-        messageBox = new JTextField(30);
-        messageBox.requestFocusInWindow();
+        messageBox = new TextField();
+        messageBox.setPromptText("Type your message");
+        messageBox.requestFocus();
 
-        sendMessage = new JButton("Send Message");
-        sendMessage.addActionListener(new sendMessageButtonListener());
+        sendMessage = new Button("Send Message");
+        sendMessage.setOnAction(e -> sendMessageButtonAction());
 
-        chatBox = new JTextArea();
+        chatBox = new TextArea();
         chatBox.setEditable(false);
-        chatBox.setFont(new Font("Serif", Font.PLAIN, 15));
-        chatBox.setLineWrap(true);
+        chatBox.setFont(new Font("Serif", 15));
 
-        mainPanel.add(new JScrollPane(chatBox), BorderLayout.CENTER);
+        mainPane.setCenter(new ScrollPane(chatBox));
 
-        GridBagConstraints left = new GridBagConstraints();
-        left.anchor = GridBagConstraints.LINE_START;
-        left.fill = GridBagConstraints.HORIZONTAL;
-        left.weightx = 512.0D;
-        left.weighty = 1.0D;
+        bottomPane.getChildren().addAll(messageBox, sendMessage);
+        mainPane.setBottom(bottomPane);
 
-        GridBagConstraints right = new GridBagConstraints();
-        right.insets = new Insets(0, 10, 0, 0);
-        right.anchor = GridBagConstraints.LINE_END;
-        right.fill = GridBagConstraints.NONE;
-        right.weightx = 1.0D;
-        right.weighty = 1.0D;
-
-        southPanel.add(messageBox, left);
-        southPanel.add(sendMessage, right);
-
-        mainPanel.add(BorderLayout.SOUTH, southPanel);
-
-        newFrame.add(mainPanel);
-        newFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        newFrame.setSize(470, 300);
-        newFrame.setVisible(true);
+        Scene scene = new Scene(mainPane, 470, 300);
+        newStage.setTitle(appName);
+        newStage.setScene(scene);
+        newStage.setOnCloseRequest(event -> Platform.exit());
+        newStage.show();
     }
-    class sendMessageButtonListener implements ActionListener {
-        public void actionPerformed(ActionEvent event) {
-            if (messageBox.getText().length() < 1) {
-                // do nothing
-            } else if (messageBox.getText().equals(".clear")) {
-                chatBox.setText("Cleared all messages\n");
-                messageBox.setText("");
-            } else {
-                chatBox.append("<" + username + ">:  " + messageBox.getText()
-                        + "\n");
-                messageBox.setText("");
-            }
-            messageBox.requestFocusInWindow();
-        }
-    }
-    String  username;
-    class enterServerButtonListener implements ActionListener {
-        public void actionPerformed(ActionEvent event) {
-            username = usernameChooser.getText();
-            if (username.length() < 1) {
-                System.out.println("No!");
-            } else {
-                preFrame.setVisible(false);
-                display();
-            }
-        }
+    private void sendMessageButtonAction() {
+        if (messageBox.getText().length() < 1) {
 
+        } else if (messageBox.getText().equals(".clear")) {
+            chatBox.setText("Cleared all messages\n");
+            messageBox.setText("");
+        } else {
+            chatBox.appendText("<" + usernameChooser.getText() + ">:  " + messageBox.getText() + "\n");
+            messageBox.setText("");
+        }
+        messageBox.requestFocus();
     }
 }
+
