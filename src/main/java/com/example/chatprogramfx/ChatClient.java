@@ -34,7 +34,7 @@ public class ChatClient extends Thread {
                         String username = delim[0];
                         String msg = delim[1];
 
-                        //Must be inside Platform.runLater since to modify JavaFX GUIs it just be run in a JavaFX thread.
+                        //Must be inside Platform.runLater() since to modify JavaFX GUIs, it needs to be run on the JavaFX Application Thread.
                         Platform.runLater(() -> {
                             cls.receiveMessage(msg, username);
                         });
