@@ -45,7 +45,7 @@ public class MainGUI extends Application {
         preStage.show();
     }
 
-    //Added a bit to this where it lets ClientChat know the current instance. It needs this to know where to run methods. -CB
+
     private void enterServerButtonAction() {
         String username = usernameChooser.getText();
         if (username.length() < 1) {
@@ -88,7 +88,7 @@ public class MainGUI extends Application {
         newStage.show();
     }
 
-    //Made it start a ChatServer thread when sendMessageButtonAction is run -CB
+
     private void sendMessageButtonAction() {
         if (messageBox.getText().length() < 1) {
 
@@ -105,7 +105,7 @@ public class MainGUI extends Application {
         messageBox.requestFocus();
     }
 
-    //Added this method for ChatClient to use -CB
+
     public void receiveMessage(String msg, String user) {
      chatBox.appendText("<" + user + ">:  " + msg + "\n");   
     }
